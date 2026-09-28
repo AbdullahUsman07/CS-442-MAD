@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 final List<Map<String, dynamic>> books = [
   {
     'title': 'Dart in Action',
@@ -131,6 +133,48 @@ class Pair<A,B>{
   }
 }
 
+// ------------------------ Part no 5 ------------------------
+// task no 5.1: Custom Exceptions
+class BookNotFoundException implements Exception{
+  final String title;
+  BookNotFoundException(this.title);
+}
+
+class BookNotAvailableException implements Exception{
+  final String title;
+  BookNotAvailableException(this.title);
+}
+
+// Task no 5.2: Throwing 
+void checkOut(Map<String, int> stock, String title){
+  if(!stock.containsKey(title)){
+    throw BookNotFoundException(title);
+  }
+  if(stock[title]! <= 0){
+    throw BookNotAvailableException(title);
+  }
+  stock[title] = stock[title]! - 1;
+}
+
+// Task no 5.4: A build in Exception
+Map<String, dynamic> findBook(String title){
+  return books.firstWhere((b) => b['title'] == title);
+}
+
+
+// ----------------------------- Part no 6 -----------------------------
+// task no 6.1
+Future<String> fetchBookofTheDay()async{
+  await Future.delayed(Duration(seconds: 1));
+  return 'Dart in Action';
+}
+
+// task no 6.3
+Future<String> fetchBroken()async{
+  await Future.delayed(Duration(milliseconds: 500));
+  throw Exception('Server Down!');
+}
+
 void main() async {
   part1();
   part2();
@@ -247,8 +291,52 @@ void part4() {
 
 void part5() {
   print('--- Part 5 ---');
+
+  // task no 5.3: try/on/catch/finally
+  var stock = buildStock();
+  var checkOutList = ['Dart in Action', 'Flutter Basics', 'Unknown Book'];
+
+  for(var title in checkOutList){
+    try{
+      checkOut(stock, title);
+      print("Checked out: $title");
+    } on BookNotAvailableException catch(e){
+      print("Sorry! ${e.title} has no copies left");
+    }on BookNotFoundException catch(e){
+      print("Not found: ${e.title}");
+    }finally{
+      print("Transaction Logged!");
+    }
+  }
+
+  print('Copies left of Dart in Action: ${stock['Dart in Action']}');
+
+  // Task no 5.4: a built in exception
+  try{
+    findBook('Missing');
+  } on StateError{
+    print('Search failed: no such book');
+  }
 }
 
 Future<void> part6() async {
   print('--- Part 6 ---');
+
+  // Task no 6.1: Await a Future
+  print('Fetching...');
+  var book = await fetchBookofTheDay();
+  print('Book of the Day: $book');
+
+  // Task no 6.2 what happens without await
+  // print('Fetching...');
+  // var book_ = fetchBookofTheDay();
+  // print('Book of the Day: $book_');
+  // console: Instance of 'Future<String>'
+
+  // Task no 6.3: 
+  try{
+    await fetchBroken();
+  }catch(e){
+    print('Fetch Failed: $e');
+  }
 }
