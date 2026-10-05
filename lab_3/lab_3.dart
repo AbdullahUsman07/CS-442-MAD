@@ -1,6 +1,5 @@
 // lab3.dart - Campus Cafe Order System
 // Name: Abdullah Usman , Roll no: 04072313020
-import '../basics/first.dart';
 
 const String rollNo = '04072313020';
 // ===== Seeded settings (generated from YOUR roll number). Do not edit. =====
@@ -60,9 +59,12 @@ class MenuItem {
   MenuItem.free(this.name) : price = 0;
 
   // Task no 3.2:
-  MenuItem.toString(String text)
+  MenuItem.fromString(String text)
     : name = text.split(':')[0].trim(),
       price = int.parse(text.split(':')[1].trim());
+
+  @override
+  String toString() => '$name (Rs $price)';
 }
 
 // =============================== Step 4: Factory Constructor ===================
@@ -96,11 +98,83 @@ class OrderLine {
     : assert(qty > 0, 'qty must be positive'),
       total = item.price * qty,
       tax = (item.price * qty * taxPercent) ~/ 100;
+
+  // =========================== Step 6: Getters ===================================
+  int get grand => total + tax;
+  bool get isBigOrder => grand > bigOrderLimit;
+  String get label => '${item.name} x${qty}';
 }
+
 // Task no 5.2
-  OrderLine mainOrder() {
-    return OrderLine(MenuItem(menu[u], priceOf(u)), 2 + (t + u) % 5);
+OrderLine mainOrder() {
+  return OrderLine(MenuItem(menu[u], priceOf(u)), 2 + (t + u) % 5);
+}
+
+// ================================ Step 7: Setters ==============================
+// Question: The setter silently clamps a bad value. What is one other thing a setter could do with an invalid value?
+// Answer: Instead of clamping (restricting a value within bounds), a setter could
+// throw an ArgumentError to explicitly alert the caller to invalid assignment data
+class StudentCard {
+  final String owner;
+  int _balance;
+
+  StudentCard(this.owner) : _balance = 0;
+
+  int get balance => _balance;
+
+  // Task 7.1
+  set balance(int v) {
+    if (v < 0) {
+      _balance = 0;
+    } else if (v > balanceCap) {
+      _balance = balanceCap;
+    } else {
+      _balance = v;
+    }
   }
+}
+
+List<MenuItem> buildMenu() {
+  return [
+    for (int k = 0; k < 4; k++)
+      MenuItem.fromString(
+        '${menu[(u + 3 * k) % 10]}:${priceOf((u + 3 * k) % 10)}',
+      ),
+  ];
+}
+
+// =============================== Step 9 Building a recipt ===========================
+// Task no 9.1
+
+List<OrderLine> buildReceipt() {
+  List<MenuItem> items = buildMenu().sublist(0, 3);
+  return [for (int k = 0; k < 3; k++) OrderLine(items[k], 1 + (t + k) % 4)];
+}
+
+// ============================= Step 10: Capstone, discount Coupons ============================
+class Coupon {
+  static final Map<String, Coupon> _cache = {};
+  final String code;
+  final int percent;
+  final int minSpend;
+
+  Coupon(this.code, this.percent)
+    : minSpend = percent * 70,
+      assert(percent >= 1 && percent <= 50, 'percent must be between 1 and 50');
+
+  // Factory constructor retrieving from or populating the cache
+  factory Coupon.fromCode(String code) {
+    return _cache.putIfAbsent(code, () => Coupon(code, couponPercent));
+  }
+
+  // Method to compute discount
+  int discountOn(int amount) {
+    if (amount >= minSpend) {
+      return amount * percent ~/ 100;
+    }
+    return 0;
+  }
+}
 
 void main() {
   print('Seed: $seed (t=$t, u=$u)');
@@ -147,7 +221,7 @@ void step3() {
   MenuItem freebie = MenuItem.free('Water');
 
   int i = (u + 2) % 10;
-  MenuItem parsed = MenuItem.toString('${menu[i]}:${priceOf(i)}');
+  MenuItem parsed = MenuItem.fromString('${menu[i]}:${priceOf(i)}');
 
   print('Step3: ${freebie.name} Rs ${freebie.price}');
   print('Step3: ${parsed.name} Rs ${parsed.price}');
@@ -191,20 +265,113 @@ void step5() {
 
 void step6() {
   print('--- Step 6 ---');
+  OrderLine line = mainOrder();
+  // line.grand = 5;
+
+  // Error: The setter 'grand' isn't defined for the type 'OrderLine'.
+  //'OrderLine' is from 'lab_3.dart'.
+  //Try correcting the name to the name of an existing setter, or defining a setter or field named 'grand'.
+  // No setter is defined, thus giving the error
+  print('Step 6: grand=${line.grand}');
+  print('Step 6: big order? ${line.isBigOrder} (limit $bigOrderLimit)');
+  print('Step 6: label=${line.label}');
 }
 
 void step7() {
   print('--- Step 7 ---');
+  StudentCard card = StudentCard('S$seed');
+
+  card.balance = seed * 10 + 50;
+  print('Step 7: topped up -> ${card.balance}');
+
+  card.balance = -seed - 1;
+  print('Step 7: bad value -> ${card.balance}');
+
+  card.balance = balanceCap - u;
+  print('Step 7: reset -> ${card.balance}');
+
+  card.balance = card.balance - mainOrder().grand;
+  print('Step 7: paid order -> ${card.balance}');
 }
 
 void step8() {
   print('--- Step 8 ---');
+
+  List<MenuItem> items = buildMenu();
+
+  MenuItem priciest = items.reduce(
+    (curr, next) => curr.price > next.price ? curr : next,
+  );
+
+  int sum = items.fold(0, (acc, item) => acc + item.price);
+
+  print('Step 8: menu = $items');
+  print('Step 8: priciest = ${priciest.name}');
+  print('Step 8: sum = $sum');
 }
 
 void step9() {
   print('--- Step 9 ---');
+
+  List<OrderLine> receipt = buildReceipt();
+  int receiptTotal = 0;
+
+  for (OrderLine line in receipt) {
+    print('Step 9: ${line.label} = ${line.grand}');
+    OrderLog().add('receipt: ${line.label}');
+    receiptTotal += line.grand;
+  }
+
+  print('Step 9: receipt total = $receiptTotal');
+  print('Step 9: log size = ${OrderLog().entries.length}');
 }
 
 void step10() {
   print('--- Step 10 ---');
+  String code = 'CAFE${seed.toString().padLeft(2, '0')}';
+  Coupon c1 = Coupon.fromCode(code);
+  Coupon c2 = Coupon.fromCode(code);
+
+  List<OrderLine> receiptLines = buildReceipt();
+  int receipt = receiptLines.fold(0, (acc, line) => acc + line.grand);
+  int discount = c1.discountOn(receipt);
+
+  print(
+    'Step 10: ${c1.code} gives ${c1.percent}% off, min spend ${c1.minSpend}',
+  );
+  print('Step 10: cached? ${identical(c1, c2)}');
+  print(
+    'Step 10: receipt $receipt, discount $discount, payable ${receipt - discount}',
+  );
 }
+
+
+
+// ========================= Questions ============================
+/**
+ * Q1. Animal(this.name, this.type); and the verbose constructor give the same result. What
+  does the shorthand save you?
+
+  Answer: This shorthand removes boilerplate. It binds the constructor parameters to constructor feilds. Without needing to write
+  redundant code like (this.name = name) in the constructor body.
+
+  Q2. When would you choose a named constructor, and when a factory constructor?
+
+  Answer: Named constructors provide multiple ways to instantiate the object. While Factory constructors, when you need to return a cached
+  instance instead of returning a freshly created instance.
+
+  Q3. What is the difference between assigning a field in a constructor body and assigning it in an
+initializer list?
+
+  Answer: Initializer list executes before the constructor body and before the object is fully formed, (this is required to initialize 
+  non-nullable final feilds). On the other hand, assignment using a constructor body happens after the object creation and only work for
+  mutable feilds. 
+
+  Q4. Give one reason to use a getter instead of storing the value in a field, and one reason to use a
+setter instead of a public field.
+
+Answer: A getter is ideal for dynamic computed properties that should update automatically 
+ whenever underlying state changes without storing redundant data. A setter allows input 
+ validation and bounds clamping before values are written to private memory.
+   
+ */
