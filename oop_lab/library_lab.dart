@@ -1,6 +1,8 @@
 // library_lab.dart  -  Campus Library System
 // Name: ____________________   Roll no: ____________
 
+import 'dart:math';
+
 const String rollNo = '04072313020'; // e.g. '21F-0347'
 
 // ===== Seeded settings (generated from YOUR roll number). Do not edit. =====
@@ -32,13 +34,15 @@ final int shelfSize = 3 + u % 4; // items on the shelf in Steps 9-10
 // ===========================================================================
 
 // ----- Step 1: Classes and Extends -------
-class LibraryItem {
+abstract class LibraryItem {
   final String title;
   final int year;
 
   LibraryItem(this.title, this.year);
 
   String describe() => '$title ($year)';
+
+  int lateFee(int days);
 }
 
 class Book extends LibraryItem {
@@ -48,6 +52,9 @@ class Book extends LibraryItem {
 
   @override
   String describe() => '${super.describe()}, $pages pages';
+
+  @override   
+  int lateFee(int days) => days * feePerDay;
 }
 
 class Magazine extends LibraryItem {
@@ -57,6 +64,21 @@ class Magazine extends LibraryItem {
 
   @override
   String describe() => '${super.describe()}, issue $issue';
+
+  @override    
+  int lateFee(int days) => days * (feePerDay ~/ 2);
+}
+
+class Dvd extends LibraryItem{
+  final int minutes;
+
+  Dvd(super.title, super.year, this.minutes);
+
+  @override  
+  String describe() => '${super.describe()}, $minutes min';
+
+  @override   
+  int lateFee(int days) => days * feePerDay * 2;
 }
 
 Book mainBook() {
@@ -66,6 +88,11 @@ Book mainBook() {
 Magazine mainMagazine() {
   int i = (u + 1) % 10;
   return Magazine(titles[i], yearOf(i), 1 + (t + u) % 12);
+}
+
+Dvd mainDvd() {
+  int i = (u + 2) % 10;
+  return Dvd(titles[i], yearOf(i), 90 + seed % 40);
 }
 
 void main() {
@@ -111,6 +138,19 @@ void step2() {
 
 void step3() {
   print('--- Step 3 ---');
+
+  // final LibraryItem  lib = LibraryItem('x', 2000);
+  // Error: The class 'LibraryItem' is abstract and can't be instantiated.
+  // Abstract class cannot be instantiated because it represent a blueprint containing methods (without bodies).
+  // Dart enforces this restriction at compile time to prevent invoking the unimplemented logic.
+  
+  final Book book = mainBook();
+  final Magazine magazine = mainMagazine();
+  final Dvd dvd = mainDvd();
+
+  print("Step 3:  Book late fee for $daysLate days = ${book.lateFee(daysLate)}");
+  print("Step 3:  Magazine late fee for $daysLate days = ${magazine.lateFee(daysLate)}");
+  print("Step 3:  Dvd late fee for $daysLate days = ${dvd.lateFee(daysLate)}");
 }
 
 void step4() {
