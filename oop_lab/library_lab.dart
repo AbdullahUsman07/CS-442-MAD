@@ -1,7 +1,7 @@
 // library_lab.dart  -  Campus Library System
 // Name: ____________________   Roll no: ____________
 
-import 'dart:math';
+
 
 const String rollNo = '04072313020'; // e.g. '21F-0347'
 
@@ -45,8 +45,17 @@ abstract class LibraryItem {
   int lateFee(int days);
 }
 
-class Book extends LibraryItem {
+abstract class Borrowable{
+
+  bool get isAvailable;
+
+  void borrow();
+  void giveBack();
+}
+
+class Book extends LibraryItem implements Borrowable{
   final int pages;
+  bool _out = false;
 
   Book(super.title, super.year, this.pages);
 
@@ -55,6 +64,15 @@ class Book extends LibraryItem {
 
   @override   
   int lateFee(int days) => days * feePerDay;
+
+  @override   
+  bool get isAvailable => !_out;
+
+  @override
+  void borrow() => _out = true;
+
+  @override    
+  void giveBack() => _out = false;
 }
 
 class Magazine extends LibraryItem {
@@ -80,6 +98,9 @@ class Dvd extends LibraryItem{
   @override   
   int lateFee(int days) => days * feePerDay * 2;
 }
+
+
+
 
 Book mainBook() {
   return Book(titles[u], yearOf(u), 100 + 3 * seed);
@@ -143,7 +164,7 @@ void step3() {
   // Error: The class 'LibraryItem' is abstract and can't be instantiated.
   // Abstract class cannot be instantiated because it represent a blueprint containing methods (without bodies).
   // Dart enforces this restriction at compile time to prevent invoking the unimplemented logic.
-  
+
   final Book book = mainBook();
   final Magazine magazine = mainMagazine();
   final Dvd dvd = mainDvd();
@@ -155,6 +176,26 @@ void step3() {
 
 void step4() {
   print('--- Step 4 ---');
+
+  /**
+   * 'extends' allows to inherit concrete code and feild declarations from a sueprclass. Dart does not support multiple
+   * inheritence. Thus, Book class cannot extend both LibraryItem class and Borrowable class. 
+   * ssing `implements` treats `Borrowable` purely as an interface, enabling `Book` to satisfy
+   * the contract while providing its own custom state management (_out).
+   */
+
+  Book book = mainBook();
+  
+  print("Step 4: available? ${book.isAvailable}");
+  book.borrow();
+  print("Step 4: borrow? ${book.isAvailable}");
+  book.giveBack();
+  print("Step 4: return? ${book.isAvailable}");
+
+  final List<LibraryItem> items = [book, mainMagazine(), mainDvd()];
+  for (final item in items){
+    print("Step 4: ${item.runtimeType} borrowable? ${item is Borrowable}");
+  }
 }
 
 void step5() {
