@@ -1,8 +1,6 @@
 // library_lab.dart  -  Campus Library System
 // Name: ____________________   Roll no: ____________
 
-
-
 const String rollNo = '04072313020'; // e.g. '21F-0347'
 
 // ===== Seeded settings (generated from YOUR roll number). Do not edit. =====
@@ -45,15 +43,25 @@ abstract class LibraryItem {
   int lateFee(int days);
 }
 
-abstract class Borrowable{
+// Step 5: Mixins
+mixin Renewable {
+  int renewals = 0;
+  bool renew(limits) {
+    if (renewals >= limits) return false;
 
+    renewals++;
+    return true;
+  }
+}
+
+abstract class Borrowable {
   bool get isAvailable;
 
   void borrow();
   void giveBack();
 }
 
-class Book extends LibraryItem implements Borrowable{
+class Book extends LibraryItem with Renewable implements Borrowable {
   final int pages;
   bool _out = false;
 
@@ -62,16 +70,16 @@ class Book extends LibraryItem implements Borrowable{
   @override
   String describe() => '${super.describe()}, $pages pages';
 
-  @override   
+  @override
   int lateFee(int days) => days * feePerDay;
 
-  @override   
+  @override
   bool get isAvailable => !_out;
 
   @override
   void borrow() => _out = true;
 
-  @override    
+  @override
   void giveBack() => _out = false;
 }
 
@@ -83,24 +91,21 @@ class Magazine extends LibraryItem {
   @override
   String describe() => '${super.describe()}, issue $issue';
 
-  @override    
+  @override
   int lateFee(int days) => days * (feePerDay ~/ 2);
 }
 
-class Dvd extends LibraryItem{
+class Dvd extends LibraryItem with Renewable {
   final int minutes;
 
   Dvd(super.title, super.year, this.minutes);
 
-  @override  
+  @override
   String describe() => '${super.describe()}, $minutes min';
 
-  @override   
+  @override
   int lateFee(int days) => days * feePerDay * 2;
 }
-
-
-
 
 Book mainBook() {
   return Book(titles[u], yearOf(u), 100 + 3 * seed);
@@ -169,8 +174,12 @@ void step3() {
   final Magazine magazine = mainMagazine();
   final Dvd dvd = mainDvd();
 
-  print("Step 3:  Book late fee for $daysLate days = ${book.lateFee(daysLate)}");
-  print("Step 3:  Magazine late fee for $daysLate days = ${magazine.lateFee(daysLate)}");
+  print(
+    "Step 3:  Book late fee for $daysLate days = ${book.lateFee(daysLate)}",
+  );
+  print(
+    "Step 3:  Magazine late fee for $daysLate days = ${magazine.lateFee(daysLate)}",
+  );
   print("Step 3:  Dvd late fee for $daysLate days = ${dvd.lateFee(daysLate)}");
 }
 
@@ -185,7 +194,7 @@ void step4() {
    */
 
   Book book = mainBook();
-  
+
   print("Step 4: available? ${book.isAvailable}");
   book.borrow();
   print("Step 4: borrow? ${book.isAvailable}");
@@ -193,13 +202,26 @@ void step4() {
   print("Step 4: return? ${book.isAvailable}");
 
   final List<LibraryItem> items = [book, mainMagazine(), mainDvd()];
-  for (final item in items){
+  for (final item in items) {
     print("Step 4: ${item.runtimeType} borrowable? ${item is Borrowable}");
   }
 }
 
 void step5() {
   print('--- Step 5 ---');
+
+  final Book book = mainBook();
+  int ok = 0;
+
+  for(int i =0; i< renewAttempts; i++){
+    if (book.renew(renewLimit)) {
+      ok++;
+    }
+  }
+
+  print("Step 5: renewed $ok of $renewAttempts  attempts (limit $renewLimit)");
+  print("Step 5: renew once more? ${book.renew(renewLimit)}");
+  print("Step 5: dvd can renew too? ${mainDvd().renew(1)}");
 }
 
 void step6() {
