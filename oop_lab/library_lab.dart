@@ -61,6 +61,19 @@ abstract class Borrowable {
   void giveBack();
 }
 
+// ----------------- Step 6: Enhanced Enums -----------------
+enum MemberType {
+  student(3, 50),
+  faculty(10, 20),
+  guest(1, 0);
+
+  final int maxLoans;
+  final int discountPercent;
+  const MemberType(this.maxLoans, this.discountPercent);
+
+  int applyDiscount(int fee) => fee - (fee - discountPercent ~/ 100);
+}
+
 class Book extends LibraryItem with Renewable implements Borrowable {
   final int pages;
   bool _out = false;
@@ -119,6 +132,20 @@ Magazine mainMagazine() {
 Dvd mainDvd() {
   int i = (u + 2) % 10;
   return Dvd(titles[i], yearOf(i), 90 + seed % 40);
+}
+
+// Step 7 
+extension MoneyText on int{
+  String get rs => 'Rs $this';
+}
+
+extension Initials on String{
+  String get initials => split(' ').map((w) => w[0]).join();
+}
+
+extension ShelfMath on List<LibraryItem>{
+  int totalLateFee(int days) =>
+      fold(0, (sum, item) => sum + item.lateFee(days));
 }
 
 void main() {
@@ -210,10 +237,17 @@ void step4() {
 void step5() {
   print('--- Step 5 ---');
 
+  // Why mixin is a better fit?
+  // Putting `renew()` inside `LibraryItem` would force subclasses like `Magazine`
+  // to inherit renewal functionality that they should not have.
+  // A mixin enables horizontal code sharing (reusing code across different branches
+  // without a parent-child relationship), letting `Book` and `Dvd` share the exact
+  // same implementation without polluting the base class.
+
   final Book book = mainBook();
   int ok = 0;
 
-  for(int i =0; i< renewAttempts; i++){
+  for (int i = 0; i < renewAttempts; i++) {
     if (book.renew(renewLimit)) {
       ok++;
     }
@@ -226,10 +260,38 @@ void step5() {
 
 void step6() {
   print('--- Step 6 ---');
+
+  // Why is MemberType.student safer than the string 'student'?
+  /**
+  * A raw string like 'student' is prone to
+  * typos (e.g., 'studnet') that fail silently until runtime, whereas an enum guarantees
+  * exhaustive and strictly validated options.
+  */
+
+  final MemberType type = MemberType.values[seed % 3];
+  final int fee = mainBook().lateFee(daysLate);
+
+  print("Step 6: member type = ${type.name} (index ${type.index})");
+  print("Step 6: max loans = ${type.maxLoans}");
+  print("Step 6: book fee $fee -> ${type.applyDiscount(fee)} after discount");
 }
 
 void step7() {
   print('--- Step 7 ---');
+
+  final MemberType type = MemberType.values[seed % 3];
+  final int bookFee = mainBook().lateFee(daysLate);
+  final int discountedFee = type.applyDiscount(bookFee);
+
+  final List<LibraryItem> shelf = [
+    mainBook(),
+    mainMagazine(),
+    mainDvd()
+  ];
+
+  print("Step 7: ${discountedFee}.rs");
+  print('Step 7: initials of "${titles[u]}" = ${titles[u].initials}');
+  print("Step 7: shelf fee for $daysLate days = ${shelf.totalLateFee(daysLate)}.rs" );
 }
 
 void step8() {
