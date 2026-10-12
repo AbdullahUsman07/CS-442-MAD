@@ -74,6 +74,27 @@ enum MemberType {
   int applyDiscount(int fee) => fee - (fee - discountPercent ~/ 100);
 }
 
+// --------------- Step 8: Operators, == and Hashcode
+class Fine {
+  final int amount;
+
+  const Fine(this.amount);
+
+  Fine operator +(Fine o) => Fine(amount + o.amount);
+
+  bool operator >(Fine o) => amount > o.amount;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is Fine && other.amount == amount);
+
+  @override
+  String toString() => 'Fine ($amount)';
+
+  @override
+  int get hashCode => amount.hashCode;
+}
+
 class Book extends LibraryItem with Renewable implements Borrowable {
   final int pages;
   bool _out = false;
@@ -134,16 +155,16 @@ Dvd mainDvd() {
   return Dvd(titles[i], yearOf(i), 90 + seed % 40);
 }
 
-// Step 7 
-extension MoneyText on int{
+// Step 7
+extension MoneyText on int {
   String get rs => 'Rs $this';
 }
 
-extension Initials on String{
+extension Initials on String {
   String get initials => split(' ').map((w) => w[0]).join();
 }
 
-extension ShelfMath on List<LibraryItem>{
+extension ShelfMath on List<LibraryItem> {
   int totalLateFee(int days) =>
       fold(0, (sum, item) => sum + item.lateFee(days));
 }
@@ -283,19 +304,32 @@ void step7() {
   final int bookFee = mainBook().lateFee(daysLate);
   final int discountedFee = type.applyDiscount(bookFee);
 
-  final List<LibraryItem> shelf = [
-    mainBook(),
-    mainMagazine(),
-    mainDvd()
-  ];
+  final List<LibraryItem> shelf = [mainBook(), mainMagazine(), mainDvd()];
 
   print("Step 7: ${discountedFee}.rs");
   print('Step 7: initials of "${titles[u]}" = ${titles[u].initials}');
-  print("Step 7: shelf fee for $daysLate days = ${shelf.totalLateFee(daysLate)}.rs" );
+  print(
+    "Step 7: shelf fee for $daysLate days = ${shelf.totalLateFee(daysLate)}.rs",
+  );
 }
 
 void step8() {
   print('--- Step 8 ---');
+
+  // If `hashCode` is omitted, Dart uses identity-based hashing from `Object`.
+  // Hash collections (like Set and Map) inspect `hashCode` first to locate the bucket
+  // before checking equality via `==`. Without overriding `hashCode`, two different
+  // instances with the same amount generate different hash codes, placing them in
+  // separate buckets and increasing the set size from 2 to 3.
+  // Dart contract requires that if two objects evaluate to equal via `==`,
+  // they must produce the identical `hashCode`.
+  final Fine f1 = Fine(mainBook().lateFee(daysLate));
+  final Fine f2 = Fine(mainMagazine().lateFee(daysLate));
+
+  print('Step 8: $f1 + $f2 = ${f1 + f2}');
+  print('Step 8: first bigger? ${f1 > f2}');
+  print('Step 8: equal copies? ${f1 == Fine(f1.amount)}');
+  print('Step 8: set size = ${{f1, Fine(f1.amount), f2}.length}');
 }
 
 void step9() {
