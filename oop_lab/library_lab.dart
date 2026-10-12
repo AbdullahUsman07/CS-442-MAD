@@ -49,6 +49,21 @@ abstract class LibraryItem {
   int lateFee(int days);
 }
 
+// -------------- Step 10 --------------------
+class Member {
+  final String name;
+  final MemberType type;
+
+  Member(this.name, this.type);
+
+  Fine feeFor(LibraryItem item, int days) {
+    final int baseFee = item.lateFee(days);
+    final int capped = LibraryItem.capFee(baseFee);
+    final int discounted = type.applyDiscount(capped);
+    return Fine(discounted);
+  }
+}
+
 List<LibraryItem> buildShelf() {
   final List<LibraryItem> shelf = [];
 
@@ -93,7 +108,7 @@ enum MemberType {
   final int discountPercent;
   const MemberType(this.maxLoans, this.discountPercent);
 
-  int applyDiscount(int fee) => fee - (fee - discountPercent ~/ 100);
+  int applyDiscount(int fee) => fee - (fee * discountPercent ~/ 100);
 }
 
 // --------------- Step 8: Operators, == and Hashcode
@@ -368,11 +383,37 @@ void step9() {
   final List<LibraryItem> shelf = buildShelf();
 
   print('Step 9: items created ${LibraryItem.created}');
-  print('Step 9: capped fee ${LibraryItem.capFee(shelf.first.lateFee(daysBig))} (cap$feeCap)');
-  print('Step 9: const copies identical? ${identical(const Fine(10), const Fine(10))}');
+  print(
+    'Step 9: capped fee ${LibraryItem.capFee(shelf.first.lateFee(daysBig))} (cap$feeCap)',
+  );
+  print(
+    'Step 9: const copies identical? ${identical(const Fine(10), const Fine(10))}',
+  );
   print('Step 9: new copies identical? ${identical(Fine(10), Fine(10))}');
 }
 
 void step10() {
   print('--- Step 10 ---');
+
+  final List<LibraryItem> shelf = buildShelf();
+  final Member member = Member('S$seed', MemberType.values[seed % 3]);
+
+  int borrowableCount = 0;
+  int renewableCount = 0;
+
+  for (final item in shelf) {
+    if (item is Borrowable) borrowableCount++;
+    if (item is Renewable) renewableCount++;
+  }
+
+  final Fine total = shelf.fold(
+    const Fine(0),
+    (sum, item) => sum + member.feeFor(item, daysLate),
+  );
+
+  print(
+    'Step 10: ${shelf.length} items, $borrowableCount borrowable, $renewableCount renewable',
+  );
+  print('Step 10: ${member.name} (${member.type.name}) owes $total');
+  print('Step 10: over the cap? ${total > Fine(feeCap)}');
 }
