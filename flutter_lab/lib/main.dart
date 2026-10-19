@@ -315,7 +315,7 @@ class _CountdownState extends State<Countdown> {
         if (_left > 0)
           Text('Time left: $_left s', key: const Key('time-left'))
         else
-          const Text('Time is up!', key: const Key('time-left')),
+          const Text('Time is up!', key: Key('time-left')),
         Text('Builds: $_builds', key: const Key('builds')),
       ],
     );
