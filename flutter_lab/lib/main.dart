@@ -1,7 +1,6 @@
 // main.dart - Study Tracker lab
 import 'dart:async';
 
-
 import 'package:flutter/material.dart';
 
 const String studentName = 'Abdullah Usman';
@@ -82,7 +81,7 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Tally(),
-            const SizedBox(height: 12,),
+            const SizedBox(height: 12),
             const Countdown(),
             const SizedBox(height: 12),
             const BuggyCounter(),
@@ -271,10 +270,12 @@ class Countdown extends StatefulWidget {
 class _CountdownState extends State<Countdown> {
   late int _left;
   late Timer _timer;
+  int _builds = 0;
 
   @override
   void initState() {
     super.initState();
+    lifecycleLog.add('initState');
     _left = startSeconds;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() => _left--);
@@ -284,22 +285,28 @@ class _CountdownState extends State<Countdown> {
 
   @override
   void dispose() {
+    lifecycleLog.add('dispose');
     _timer.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_left > 0) {
-      return Text(
-        'Time left: $_left s',
-        key: const Key('time-left'),
-      );
-    } else {
-      return const Text(
-        'Time is up!',
-        key: const Key('time-left'),
-      );
-    }
+    // ---------------- Step 9 ----------------
+    // Question: Why does it increase by one per second and not by two? Where could you print lifecycleLog to prove that dispose ran?
+    // Answer: It increases by one per second because Timer.periodic triggers setState() once every second, causing Flutter to invoke
+    // the build() method exactly once per interval. You can print lifecycleLog directly inside the dispose() method after adding
+    // the entry, or print it from a parent widget during route destruction.
+    _builds++;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_left > 0)
+          Text('Time left: $_left s', key: const Key('time-left'))
+        else
+          const Text('Time is up!', key: const Key('time-left')),
+        Text('Builds: $_builds', key: const Key('builds')),
+      ],
+    );
   }
 }
