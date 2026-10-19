@@ -147,7 +147,6 @@ class GoalBanner extends StatelessWidget {
 // Answer: Widget objects are immutable and short-lived configuration nodes that flutter creates and disposes in rendering passes.
 // The State object persists across element tree rebuild to hold mutable variables like _count and maintain componenet state over time.
 
-
 class Tally extends StatefulWidget {
   const Tally({super.key});
 
@@ -158,9 +157,31 @@ class Tally extends StatefulWidget {
 class _TallyState extends State<Tally> {
   int _count = startCount;
 
-  void _plus(){
+  void _plus() {
     setState(() {
       _count += stepSize;
+      if (_count > maxCount) {
+        _count = maxCount;
+      }
+    });
+  }
+  
+  // ------------------------------------------ Step 6 -----------------------------------
+  //  Question: Hot reload while the count is 12. Does it stay 12? Now do a hot restart. Explain the difference using the words widget and State.
+  // Answer: On Hot reload the _count stays 12 because hot reload inject updated widget code into the VM while preserving exisitng persistent
+  // State objects in the memory. On hot restart, _count resets to zero because it destroys all the existing objects in the memory and re-runs the main()
+  void _minus() {
+    setState(() {
+      _count -= stepSize;
+      if (_count < 0) {
+        _count = 0;
+      }
+    });
+  }
+
+  void _reset() {
+    setState(() {
+      _count = startCount;
     });
   }
 
@@ -177,6 +198,18 @@ class _TallyState extends State<Tally> {
               key: const Key('plus'),
               onPressed: _plus,
               child: Text('+$stepSize'),
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              key: const Key('minus'),
+              onPressed: _minus,
+              child: Text('-$stepSize'),
+            ),
+            const SizedBox(width: 8),
+            OutlinedButton(
+              key: const Key('reset'),
+              onPressed: _reset,
+              child: const Text('Reset'),
             ),
           ],
         ),
