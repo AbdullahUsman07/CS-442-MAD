@@ -81,6 +81,8 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Tally(),
+            const SizedBox(height: 12),
+            const BuggyCounter(),
           ],
         ),
       ),
@@ -165,7 +167,7 @@ class _TallyState extends State<Tally> {
       }
     });
   }
-  
+
   // ------------------------------------------ Step 6 -----------------------------------
   //  Question: Hot reload while the count is 12. Does it stay 12? Now do a hot restart. Explain the difference using the words widget and State.
   // Answer: On Hot reload the _count stays 12 because hot reload inject updated widget code into the VM while preserving exisitng persistent
@@ -219,6 +221,9 @@ class _TallyState extends State<Tally> {
 }
 
 // ---- Provided for Step 7. It has a bug on purpose. Do not rename anything.
+// Question: Before the fix, you tapped three times. What was the value of _clicks inside the State, and what did the screen show? Write both numbers
+// Answer: Inside the State memory object, value of the _clicks is 3 (bugStep = 3). On the screen, it showed 0 because without the setState,
+// Flutter was never notified to schedule a rebuild pass.
 class BuggyCounter extends StatefulWidget {
   const BuggyCounter({super.key});
 
@@ -238,7 +243,9 @@ class _BuggyCounterState extends State<BuggyCounter> {
         ElevatedButton(
           key: const Key('bug-button'),
           onPressed: () {
-            _clicks += bugStep;
+            setState(() {
+              _clicks += bugStep;
+            });
           },
           child: Text('+$bugStep'),
         ),
