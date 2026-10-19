@@ -37,9 +37,26 @@ class LabApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // Step 1 replaces everything below.
     return MaterialApp(
-      home: Scaffold(
-        body: Center(child: Text('Setup OK: seed $seed (t=$t, u=$u)')),
+      title: 'Study Tracker',
+      home: const HomePage(),
+    );
+  }
+}
+
+// ------ Step 1 --------
+// Question? What is the difference between what runApp receives and what MaterialApp receives as home?
+// Answer: runApp recieves the root widget of the application tree and attaches it directly to the flutter engine screen
+// while, MaterialApp's home recieves a widget that serves as the default visual screen inside the Material Design UI hierarchy.
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Study Tracker: $course'),
       ),
+      body: const Center(child: Text('Hello'),),
     );
   }
 }
