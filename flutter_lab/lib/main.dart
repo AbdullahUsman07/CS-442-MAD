@@ -12,8 +12,16 @@ final int t = seed ~/ 10; // tens digit
 final int u = seed % 10; // units digit
 
 const List<String> courses = [
-  'Mobile Dev', 'Data Structures', 'Operating Systems', 'Databases',
-  'Networks', 'Software Eng', 'AI', 'Web Engineering', 'Graphics', 'Security',
+  'Mobile Dev',
+  'Data Structures',
+  'Operating Systems',
+  'Databases',
+  'Networks',
+  'Software Eng',
+  'AI',
+  'Web Engineering',
+  'Graphics',
+  'Security',
 ];
 
 final String course = courses[u]; // your course name
@@ -36,10 +44,7 @@ class LabApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Step 1 replaces everything below.
-    return MaterialApp(
-      title: 'Study Tracker',
-      home: const HomePage(),
-    );
+    return MaterialApp(title: 'Study Tracker', home: const HomePage());
   }
 }
 
@@ -53,10 +58,42 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Study Tracker: $course'),
+      appBar: AppBar(title: Text('Study Tracker: $course')),
+      body: StudentCard(name: studentName, roll: rollNo, course: course),
+    );
+  }
+}
+
+// ------------------------------------- Step 2 ---------------------------------------------
+// Question Why are the fields of a StatelessWidget final? What would the compiler say if you removed final?
+// Answer: All statelesswidgets are immutable. Flutter creates and destroys widget configurations during layout passes 
+// rather than mutating them in place. If the final keyword is removed, the analyzer generates a warning that classes
+// marked @immutable cannot contain non-final fields.
+class StudentCard extends StatelessWidget {
+  final String name;
+  final String roll;
+  final String course;
+  const StudentCard({
+    super.key,
+    required this.name,
+    required this.roll,
+    required this.course,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Name: $name',key: const Key('student-name')),
+            Text('Roll no: $roll', key: const Key('student-roll')),
+            Text('Course: $course', key: const Key('student-course'))
+          ],
+        ),
       ),
-      body: const Center(child: Text('Hello'),),
     );
   }
 }
