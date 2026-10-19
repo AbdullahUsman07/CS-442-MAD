@@ -78,7 +78,9 @@ class HomePage extends StatelessWidget {
                 Text('Step: $stepSize', key: const Key('info-step')),
                 Text('Max: $maxCount', key: const Key('info-max'))
               ],
-              )
+              ),
+              const SizedBox(height: 12,),
+              GoalBanner(count: startCount, max: maxCount),
           ],
         ),
       ),
@@ -117,6 +119,23 @@ class StudentCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// -------------------------- Step 4 ----------------------
+// Question:  Why does GoalBanner not need setState? What would you have to do to make it show a new count?
+// Answer: Because the setState is the method for the StatefulWidget Class. To display  a new count, its parent 
+// widget must trigger a rebuild pass and must supply new count values when instantiating GoalBanner.
+class GoalBanner extends StatelessWidget {
+  final int count;
+  final int max;
+
+  const GoalBanner({super.key, required this.count, required this.max});
+
+  @override
+  Widget build(BuildContext context) {
+    final percent = count * 100 ~/max;
+    return Text('Progress: $count for $max ($percent)', key: const Key('progress'));
   }
 }
 
