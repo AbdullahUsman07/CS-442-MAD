@@ -37,7 +37,7 @@ final List<String> lifecycleLog = <String>[];
 
 void main() => runApp(const LabApp());
 
-// Keep the name LabApp and its const constructor: the checker uses them.
+// Statefless - Root widget that configures application routing and theme, it holds no mutable state.
 class LabApp extends StatelessWidget {
   const LabApp({super.key});
 
@@ -52,6 +52,8 @@ class LabApp extends StatelessWidget {
 // Question? What is the difference between what runApp receives and what MaterialApp receives as home?
 // Answer: runApp recieves the root widget of the application tree and attaches it directly to the flutter engine screen
 // while, MaterialApp's home recieves a widget that serves as the default visual screen inside the Material Design UI hierarchy.
+
+// Stateless - Static container screen holding the layout sections, it doesn't change dymanic state directly (thus stateless).
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -97,6 +99,8 @@ class HomePage extends StatelessWidget {
 // Answer: All statelesswidgets are immutable. Flutter creates and destroys widget configurations during layout passes
 // rather than mutating them in place. If the final keyword is removed, the analyzer generates a warning that classes
 // marked @immutable cannot contain non-final fields.
+
+// Stateless - Displays students information passed via constructor parameters
 class StudentCard extends StatelessWidget {
   final String name;
   final String roll;
@@ -130,6 +134,8 @@ class StudentCard extends StatelessWidget {
 // Question:  Why does GoalBanner not need setState? What would you have to do to make it show a new count?
 // Answer: Because the setState is the method for the StatefulWidget Class. To display  a new count, its parent
 // widget must trigger a rebuild pass and must supply new count values when instantiating GoalBanner.
+
+// Stateless- calculates percentage based purely on constructor parameters wihtout managing state.
 class GoalBanner extends StatelessWidget {
   final int count;
   final int max;
@@ -151,6 +157,7 @@ class GoalBanner extends StatelessWidget {
 // Answer: Widget objects are immutable and short-lived configuration nodes that flutter creates and disposes in rendering passes.
 // The State object persists across element tree rebuild to hold mutable variables like _count and maintain componenet state over time.
 
+// Stateful - Manages internal mutable tally state (_count) updated via setState.
 class Tally extends StatefulWidget {
   const Tally({super.key});
 
@@ -226,6 +233,8 @@ class _TallyState extends State<Tally> {
 // Question: Before the fix, you tapped three times. What was the value of _clicks inside the State, and what did the screen show? Write both numbers
 // Answer: Inside the State memory object, value of the _clicks is 3 (bugStep = 3). On the screen, it showed 0 because without the setState,
 // Flutter was never notified to schedule a rebuild pass.
+
+// Stateful - Manages interactive tap count state (_clicks) updated via setState.
 class BuggyCounter extends StatefulWidget {
   const BuggyCounter({super.key});
 
@@ -260,6 +269,8 @@ class _BuggyCounterState extends State<BuggyCounter> {
 //  Question: What error appears in the console if you delete the _timer.cancel() from dispose and the widget is removed?
 // Answer: Flutter throws an exception: setState() called after dispose(): _CountdownState#.... This occurs because the background
 // timer continues attempting to call setState() on an unmounted (detached from the element tree) state object.
+
+// Stateful - Manages backdround periodic timer lifecycle and time-left state updates
 class Countdown extends StatefulWidget {
   const Countdown({super.key});
 
