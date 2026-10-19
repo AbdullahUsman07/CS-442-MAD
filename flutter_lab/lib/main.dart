@@ -70,17 +70,17 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             StudentCard(name: studentName, roll: rollNo, course: course),
-            const SizedBox(height: 12,),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Start: $startCount', key: const Key('into-start')),
                 Text('Step: $stepSize', key: const Key('info-step')),
-                Text('Max: $maxCount', key: const Key('info-max'))
+                Text('Max: $maxCount', key: const Key('info-max')),
               ],
-              ),
-              const SizedBox(height: 12,),
-              GoalBanner(count: startCount, max: maxCount),
+            ),
+            const SizedBox(height: 12),
+            const Tally(),
           ],
         ),
       ),
@@ -124,7 +124,7 @@ class StudentCard extends StatelessWidget {
 
 // -------------------------- Step 4 ----------------------
 // Question:  Why does GoalBanner not need setState? What would you have to do to make it show a new count?
-// Answer: Because the setState is the method for the StatefulWidget Class. To display  a new count, its parent 
+// Answer: Because the setState is the method for the StatefulWidget Class. To display  a new count, its parent
 // widget must trigger a rebuild pass and must supply new count values when instantiating GoalBanner.
 class GoalBanner extends StatelessWidget {
   final int count;
@@ -134,8 +134,54 @@ class GoalBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final percent = count * 100 ~/max;
-    return Text('Progress: $count for $max ($percent)', key: const Key('progress'));
+    final percent = count * 100 ~/ max;
+    return Text(
+      'Progress: $count for $max ($percent)',
+      key: const Key('progress'),
+    );
+  }
+}
+
+// ------------------------- Step 5 --------------------------
+// The class Tally has no fields that change, yet _TallyState does. Why are there two classes?
+// Answer: Widget objects are immutable and short-lived configuration nodes that flutter creates and disposes in rendering passes.
+// The State object persists across element tree rebuild to hold mutable variables like _count and maintain componenet state over time.
+
+
+class Tally extends StatefulWidget {
+  const Tally({super.key});
+
+  @override
+  State<Tally> createState() => _TallyState();
+}
+
+class _TallyState extends State<Tally> {
+  int _count = startCount;
+
+  void _plus(){
+    setState(() {
+      _count += stepSize;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Count: $_count', key: const Key('count')),
+        GoalBanner(count: _count, max: maxCount),
+        Row(
+          children: [
+            ElevatedButton(
+              key: const Key('plus'),
+              onPressed: _plus,
+              child: Text('+$stepSize'),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 
