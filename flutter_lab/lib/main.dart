@@ -59,14 +59,36 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Study Tracker: $course')),
-      body: StudentCard(name: studentName, roll: rollNo, course: course),
+
+      // ---------- Step-3: -----------------
+      // Question: How many levels deep is the Text('Max: ..') from LabApp
+      // (1)LapApp -> (2)MaterialApp -> (3)HomePage -> (4)Scaffold -> (5)SingleChildScrollView -> (6)Column -> (7)Row -> (8) Text('max')
+      // thus, 8 levels deep from LapApp
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            StudentCard(name: studentName, roll: rollNo, course: course),
+            const SizedBox(height: 12,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Start: $startCount', key: const Key('into-start')),
+                Text('Step: $stepSize', key: const Key('info-step')),
+                Text('Max: $maxCount', key: const Key('info-max'))
+              ],
+              )
+          ],
+        ),
+      ),
     );
   }
 }
 
 // ------------------------------------- Step 2 ---------------------------------------------
 // Question Why are the fields of a StatelessWidget final? What would the compiler say if you removed final?
-// Answer: All statelesswidgets are immutable. Flutter creates and destroys widget configurations during layout passes 
+// Answer: All statelesswidgets are immutable. Flutter creates and destroys widget configurations during layout passes
 // rather than mutating them in place. If the final keyword is removed, the analyzer generates a warning that classes
 // marked @immutable cannot contain non-final fields.
 class StudentCard extends StatelessWidget {
@@ -88,9 +110,9 @@ class StudentCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Name: $name',key: const Key('student-name')),
+            Text('Name: $name', key: const Key('student-name')),
             Text('Roll no: $roll', key: const Key('student-roll')),
-            Text('Course: $course', key: const Key('student-course'))
+            Text('Course: $course', key: const Key('student-course')),
           ],
         ),
       ),
