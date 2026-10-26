@@ -114,14 +114,16 @@ class HomePage extends StatelessWidget {
             const Welcome(),
             const SizedBox(height: 12),
             const SwapBoard(),
-            const SizedBox(height: 12,),
+            const SizedBox(height: 12),
             const InfoPanel(),
-            const SizedBox(height: 12,),
+            const SizedBox(height: 12),
             const SummaryRow(),
-            const SizedBox(height: 12,),
+            const SizedBox(height: 12),
             const ShareRow(),
-            const SizedBox(height: 12,),
+            const SizedBox(height: 12),
             const InfoBox(),
+            const SizedBox(height: 12,),
+            const StampStack(),
           ],
         ),
       ),
@@ -152,7 +154,7 @@ class SettingsCard extends StatelessWidget {
 
 // ====================== Step 7 ==========================
 // Wrapping a Text in Expanded causes it to wrap words because Expanded passes down a tight maximum width constraint to its child based on the remaining space in the Row.
-// Under Flutter's "constraints go down, sizes go up" layout rule, 
+// Under Flutter's "constraints go down, sizes go up" layout rule,
 // Row -> Expanded -> Text passes down a max width constraint. The Text widget calculates line breaks to fit within that constrained width and reports its calculated height back up.
 class SummaryRow extends StatelessWidget {
   const SummaryRow({super.key});
@@ -345,7 +347,6 @@ class _SwapBoardState extends State<SwapBoard> {
   }
 }
 
-
 // ========================== Step 6 ========================
 // 1: In a column, the main axis is the VERTICAL axis (top to bottom).
 // 2: The cross axis is the HORIZONTAL axis (left to right). whereas mainAxisAlignment controls vertical positioning (moving items up/down).
@@ -362,12 +363,12 @@ class InfoPanel extends StatelessWidget {
           key: const Key('info-row'),
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Text('Start: $startSec s', key: const Key('row-a'),),
+            Text('Start: $startSec s', key: const Key('row-a')),
             Text('Tick: $tick s', key: const Key('row-b')),
             Text('Stop: $stopAt s', key: const Key('row-c')),
           ],
-          ),
-        const SizedBox(height: 12,),
+        ),
+        const SizedBox(height: 12),
         Column(
           key: const Key('info-col'),
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -376,13 +377,11 @@ class InfoPanel extends StatelessWidget {
             Text('Roll no: $rollNo', key: const Key('col-b')),
             Text('Course: $course', key: const Key('col-c')),
           ],
-
-        )
+        ),
       ],
     );
   }
 }
-
 
 // ============================== Step 8 ===================================
 // 1. Expanded forces its child to fill all available space allocated to its flex factor (it uses FlexFit.tight).
@@ -401,24 +400,28 @@ class ShareRow extends StatelessWidget {
         SizedBox(
           key: const Key('fixed'),
           width: fixedW,
-          child: ElevatedButton(onPressed: (){}, child: const Text('F')),
+          child: ElevatedButton(onPressed: () {}, child: const Text('F')),
         ),
         Expanded(
           flex: flexA,
           child: ElevatedButton(
             key: const Key('exp'),
-            onPressed: (){}, child: const Text('Exp'))
+            onPressed: () {},
+            child: const Text('Exp'),
+          ),
         ),
         Expanded(
           flex: flexB,
           child: ElevatedButton(
             key: const Key('flex'),
-            onPressed: (){}, child: const Text('Flex')))
+            onPressed: () {},
+            child: const Text('Flex'),
+          ),
+        ),
       ],
     );
   }
 }
-
 
 // ============================== Step 9 ====================================
 // 1. Padding is inside the border (between the border and the child content), whereas margin is outside the border (between the border and surrounding widgets).
@@ -439,6 +442,39 @@ class InfoBox extends StatelessWidget {
         border: Border.all(width: boxBorder),
       ),
       child: Text('Course: $course', key: const Key('box-text')),
+    );
+  }
+}
+
+// ================================ Step 10 ===============================
+// 1. The size of the Stack is determined by its non-positioned children (in this case, the grey Container of size 300x120 sets the intrinsic bounds of the Stack).
+// 2. If the Icons came first and the Container came last, the grey Container would be painted on top of the icons in layer order, completely obscuring/hiding the star and circle icons.
+
+class StampStack extends StatelessWidget {
+  const StampStack({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      key: const Key('stack'),
+      children: [
+        Container(
+          key: const Key('layer-base'),
+          width: 300,
+          height: 120,
+          color: Colors.grey.shade300,
+        ),
+        Positioned(
+          top: dotTop,
+          right: dotRight,
+          child: const Icon(Icons.star, key: Key('dot-top')),
+        ),
+        Positioned(
+          bottom: dotBottom,
+          left: dotLeft,
+          child: const Icon(Icons.circle, key: Key('dot-bottom')),
+        ),
+      ],
     );
   }
 }
