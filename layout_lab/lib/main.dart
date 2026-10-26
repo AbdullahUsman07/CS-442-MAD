@@ -118,6 +118,8 @@ class HomePage extends StatelessWidget {
             const InfoPanel(),
             const SizedBox(height: 12,),
             const SummaryRow(),
+            const SizedBox(height: 12,),
+            const ShareRow(),
           ],
         ),
       ),
@@ -374,6 +376,42 @@ class InfoPanel extends StatelessWidget {
           ],
 
         )
+      ],
+    );
+  }
+}
+
+
+// ============================== Step 8 ===================================
+// 1. Expanded forces its child to fill all available space allocated to its flex factor (it uses FlexFit.tight).
+// Flexible allows its child to take up to its allocated space but lets it remain smaller if its child's natural size is smaller (FlexFit.loose).
+// 2. Expanded is literally "Flexible with fit: FlexFit.tight".
+// 3. If you swapped Expanded and Flexible between the two buttons, the second button (now Flexible) would shrink down to fit its text 'Exp',
+// while the third button (now Expanded) would stretch tight to fill its entire flex space.
+class ShareRow extends StatelessWidget {
+  const ShareRow({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      key: const Key('share-row'),
+      children: [
+        SizedBox(
+          key: const Key('fixed'),
+          width: fixedW,
+          child: ElevatedButton(onPressed: (){}, child: const Text('F')),
+        ),
+        Expanded(
+          flex: flexA,
+          child: ElevatedButton(
+            key: const Key('exp'),
+            onPressed: (){}, child: const Text('Exp'))
+        ),
+        Expanded(
+          flex: flexB,
+          child: ElevatedButton(
+            key: const Key('flex'),
+            onPressed: (){}, child: const Text('Flex')))
       ],
     );
   }
