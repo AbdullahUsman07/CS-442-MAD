@@ -110,14 +110,10 @@ class HomePage extends StatelessWidget {
             const SettingsCard(),
             const SizedBox(height: 12),
             Clock(),
-            const SizedBox(height: 12,),
+            const SizedBox(height: 12),
             const Welcome(),
-            const SizedBox(height: 12,),
-            Row(children: [
-              Tile(tileA),
-              Tile(tileB),
-              Tile(tileC),
-            ],)
+            const SizedBox(height: 12),
+            const SwapBoard(),
           ],
         ),
       ),
@@ -189,7 +185,6 @@ class _ClockState extends State<Clock> {
   int _seconds = startSec;
 
   int _builds = 0;
-  
 
   @override
   void initState() {
@@ -204,10 +199,10 @@ class _ClockState extends State<Clock> {
   // Question
   // 1- Builds increases by 1 per second because setState() is triggered exactly once per second inside the Timer callback, causing
   // a single rebuild per tick
-  // 2- If _timer.cancel() were omiited in dispose() and widget left on the screen, the active _timer would attemp to call setState() on 
+  // 2- If _timer.cancel() were omiited in dispose() and widget left on the screen, the active _timer would attemp to call setState() on
   // an unmounted State object, throwing "setState() called after dispose() " in the console.
-  @override 
-  void dispose(){
+  @override
+  void dispose() {
     _timer.cancel();
     lifecycleLog.add('dispose');
     super.dispose();
@@ -215,19 +210,13 @@ class _ClockState extends State<Clock> {
 
   @override
   Widget build(BuildContext context) {
-    _builds ++;
+    _builds++;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Session: $_seconds s',
-          key: const Key('clock'),
-        ),
-        Text(
-          'Builds: $_builds', 
-          key: const Key('builds'),
-        ),
-        Probe(seconds: _seconds)
+        Text('Session: $_seconds s', key: const Key('clock')),
+        Text('Builds: $_builds', key: const Key('builds')),
+        Probe(seconds: _seconds),
       ],
     );
   }
@@ -236,29 +225,26 @@ class _ClockState extends State<Clock> {
 // ====================== Step 3 ===========================
 // Question
 // - Widget: cheap, immutable, and thrown away on every rebuild
-// - Element: Persistent, stays in memory across rebuilds, and manages teh underlying state 
+// - Element: Persistent, stays in memory across rebuilds, and manages teh underlying state
 // - RenderObject - Managed by the Element in Render Tree; handles actual layout, painting, and hit-testing on screen.
 class Probe extends StatelessWidget {
   final int seconds;
   const Probe({super.key, required this.seconds});
 
-
   @override
   Widget build(BuildContext context) {
-    final bool above = context.findAncestorWidgetOfExactType<Scaffold>() != null;
+    final bool above =
+        context.findAncestorWidgetOfExactType<Scaffold>() != null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Seen at $seconds',
-          key: const Key('probe-seen'),
-        ),
+        Text('Seen at $seconds', key: const Key('probe-seen')),
         Text(
           'Widget #${identityHashCode(this)}',
-          key: const Key('probe-widget')
+          key: const Key('probe-widget'),
         ),
-        Text(  
+        Text(
           'Element #${identityHashCode(context)}',
           key: const Key('probe-element'),
         ),
@@ -266,17 +252,14 @@ class Probe extends StatelessWidget {
           'Context belongs to: ${context.widget.runtimeType}',
           key: const Key('probe-context'),
         ),
-        Text(
-          'Scaffold above me: $above',
-        )
+        Text('Scaffold above me: $above'),
       ],
     );
   }
 }
 
-
 // ========================= Step 4 ==================================
-// 
+//
 
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
@@ -284,9 +267,7 @@ class Welcome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: Text('Welcome: $studentName',
-        key: const Key('welcome')
-        ),
+      child: Text('Welcome: $studentName', key: const Key('welcome')),
     );
   }
 }
@@ -294,7 +275,7 @@ class Welcome extends StatelessWidget {
 class Tile extends StatefulWidget {
   const Tile(this.label, {super.key});
 
-  final String label; 
+  final String label;
 
   @override
   State<Tile> createState() => _TileState();
@@ -304,10 +285,45 @@ class _TileState extends State<Tile> {
   int taps = 0;
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(onPressed: (){
-      setState(() {
-        taps++;
-      });
-    }, child: Text('${widget.label}: $taps'));
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          taps++;
+        });
+      },
+      child: Text('${widget.label}: $taps'),
+    );
+  }
+}
+
+// ========================== Step 5 ===============================
+//
+
+class SwapBoard extends StatefulWidget {
+  const SwapBoard({super.key});
+
+  @override
+  State<SwapBoard> createState() => _SwapBoardState();
+}
+
+class _SwapBoardState extends State<SwapBoard> {
+  var tiles = [
+    Tile(tileA, key: const Key('tileA')),
+    Tile(tileB, key: const Key('tileB')),
+    Tile(tileC, key: const Key('tileC')),
+  ];
+
+  void swap() => setState(() {
+    tiles = tiles.reversed.toList();
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(children: tiles),
+        ElevatedButton(onPressed: swap, child: const Text('swap')),
+      ],
+    );
   }
 }
