@@ -180,6 +180,9 @@ class _ClockState extends State<Clock> {
   late Timer _timer;
   int _seconds = startSec;
 
+  int _builds = 0;
+  
+
   @override
   void initState() {
     super.initState();
@@ -189,11 +192,34 @@ class _ClockState extends State<Clock> {
     });
   }
 
+  // ===================== Step 2 ========================
+  // Question
+  // 1- Builds increases by 1 per second because setState() is triggered exactly once per second inside the Timer callback, causing
+  // a single rebuild per tick
+  // 2- If _timer.cancel() were omiited in dispose() and widget left on the screen, the active _timer would attemp to call setState() on 
+  // an unmounted State object, throwing "setState() called after dispose() " in the console.
+  @override 
+  void dispose(){
+    _timer.cancel();
+    lifecycleLog.add('dispose');
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Text(
-      'Session: $_seconds s',
-      key: const Key('clock'),
+    _builds ++;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Session: $_seconds s',
+          key: const Key('clock'),
+        ),
+        Text(
+          'Builds: $_builds', 
+          key: const Key('builds'),
+        )
+      ],
     );
   }
 }
