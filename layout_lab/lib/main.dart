@@ -1,9 +1,11 @@
 // main.dart - Team Board lab
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 const String studentName = 'Abdullah Usman';
-const String rollNo = '04072313020'; 
+const String rollNo = '04072313020';
 
 // ===== Seeded settings (generated from YOUR roll number). Do not edit. =====
 final int seed = int.parse(rollNo.substring(rollNo.length - 2));
@@ -11,12 +13,25 @@ final int t = seed ~/ 10; // tens digit
 final int u = seed % 10; // units digit
 
 const List<String> courses = [
-  'Mobile Dev', 'Data Structures', 'Operating Systems', 'Databases',
-  'Networks', 'Software Eng', 'AI', 'Web Engineering', 'Graphics', 'Security',
+  'Mobile Dev',
+  'Data Structures',
+  'Operating Systems',
+  'Databases',
+  'Networks',
+  'Software Eng',
+  'AI',
+  'Web Engineering',
+  'Graphics',
+  'Security',
 ];
 const List<String> names = ['Ali', 'Sara', 'Omar', 'Hina', 'Zain', 'Maya'];
 const List<String> mains = [
-  'start', 'center', 'end', 'spaceBetween', 'spaceAround', 'spaceEvenly',
+  'start',
+  'center',
+  'end',
+  'spaceBetween',
+  'spaceAround',
+  'spaceEvenly',
 ];
 const List<String> crosses = ['start', 'center', 'end'];
 const List<String> hues = ['teal', 'indigo', 'orange', 'pink', 'green'];
@@ -94,8 +109,7 @@ class HomePage extends StatelessWidget {
           children: [
             const SettingsCard(),
             const SizedBox(height: 12),
-            // Add each new widget BELOW the previous one, in the order the
-            // steps tell you, with a SizedBox(height: 12) between widgets.
+            Clock(),
           ],
         ),
       ),
@@ -145,6 +159,41 @@ class SummaryRow extends StatelessWidget {
           key: const Key('sum-c'),
         ),
       ],
+    );
+  }
+}
+
+// ============== Step 1 ===================
+// Question ....
+// Answer: We start the Timer in initState() because it runs exactly once when the State object is inserted into the tree.
+// On the contrary, if we start the Timer inside the build(), a new Timer will be created, every time the widget rebuilds (on every setState).
+// This would accumulate multiple active timers running simultaneously, causing the clock speed to accelarate rapidly and leak memory.
+
+class Clock extends StatefulWidget {
+  const Clock({super.key});
+
+  @override
+  State<Clock> createState() => _ClockState();
+}
+
+class _ClockState extends State<Clock> {
+  late Timer _timer;
+  int _seconds = startSec;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() => _seconds += tick);
+      if (_seconds >= stopAt) _timer.cancel();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'Session: $_seconds s',
+      key: const Key('clock'),
     );
   }
 }
