@@ -122,7 +122,7 @@ class HomePage extends StatelessWidget {
             const ShareRow(),
             const SizedBox(height: 12),
             const InfoBox(),
-            const SizedBox(height: 12,),
+            const SizedBox(height: 12),
             const StampStack(),
           ],
         ),
