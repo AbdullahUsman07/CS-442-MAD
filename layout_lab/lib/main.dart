@@ -120,6 +120,8 @@ class HomePage extends StatelessWidget {
             const SummaryRow(),
             const SizedBox(height: 12,),
             const ShareRow(),
+            const SizedBox(height: 12,),
+            const InfoBox(),
           ],
         ),
       ),
@@ -413,6 +415,30 @@ class ShareRow extends StatelessWidget {
             key: const Key('flex'),
             onPressed: (){}, child: const Text('Flex')))
       ],
+    );
+  }
+}
+
+
+// ============================== Step 9 ====================================
+// 1. Padding is inside the border (between the border and the child content), whereas margin is outside the border (between the border and surrounding widgets).
+// 2. You should use a plain Padding or SizedBox when you only need spacing around or between widgets without requiring background colors, borders, rounded corners,
+// or complex decorations. Single-purpose widgets like Padding and SizedBox are lighter weight and express layout intent more cleanly than a full Container.
+class InfoBox extends StatelessWidget {
+  const InfoBox({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const Key('info-box'),
+      margin: EdgeInsets.all(boxMargin),
+      padding: EdgeInsets.all(boxPad),
+      decoration: BoxDecoration(
+        color: swatches[hue]!.shade100,
+        borderRadius: BorderRadius.circular(boxRadius),
+        border: Border.all(width: boxBorder),
+      ),
+      child: Text('Course: $course', key: const Key('box-text')),
     );
   }
 }
